@@ -2,28 +2,27 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 
-// Get all products
+// ✅ GET /api/products
+// Fetch all products (with optional category filter)
 router.get('/', async (req, res) => {
   try {
     const { category } = req.query;
-    const query = category ? { category } : {};
-    const products = await Product.find(query);
-    res.json(products);
-  } catch (err) {
+    const filter = category ? { category } : {};
+    const products = await Product.find(filter);
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
     res.status(500).json({ error: 'Server Error' });
   }
 });
 
-// PUT /api/products/:id
-// PUT /api/admin/products/:id
-router.put("/admin/products/:id", async (req, res) => {
+// ✅ PUT /api/products/:id (Admin updates product)
+router.put('/:id', async (req, res) => {
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      {
-        $set: req.body
-      },
-      { new: true } // returns the updated document
+      { $set: req.body },
+      { new: true }
     );
 
     if (!updatedProduct) {
@@ -37,14 +36,14 @@ router.put("/admin/products/:id", async (req, res) => {
   }
 });
 
-
-
-// Get unique categories
+// ✅ GET /api/products/categories
+// Fetch all unique categories
 router.get('/categories', async (req, res) => {
   try {
     const categories = await Product.distinct('category');
-    res.json(categories);
-  } catch (err) {
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error("Error fetching categories:", error);
     res.status(500).json({ error: 'Failed to fetch categories' });
   }
 });
