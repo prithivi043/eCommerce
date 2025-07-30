@@ -1,24 +1,29 @@
 // src/pages/Register.jsx
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaUser, FaEnvelope, FaLock, FaUserTag } from 'react-icons/fa';
 
 const Register = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [roles, setRoles] = useState('customer');
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    role: '',
+  });
+
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:5000/api/users/register', {
-        name,
-        email,
-        password,
-        roles
+        ...form,
+        createdAt: new Date().toISOString(), // auto add createdAt
       });
       alert('🎉 Registered Successfully!');
       navigate('/login');
@@ -33,74 +38,71 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-10">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center text-emerald-600 mb-6">Create Your Account</h2>
-
-        <form onSubmit={handleRegister} className="space-y-5">
-          <div className="flex items-center border rounded px-3 py-2">
-            <FaUser className="text-gray-500 mr-3" />
-            <input
-              type="text"
-              placeholder="Full Name"
-              className="w-full outline-none"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="flex items-center border rounded px-3 py-2">
-            <FaEnvelope className="text-gray-500 mr-3" />
-            <input
-              type="email"
-              placeholder="Email Address"
-              className="w-full outline-none"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="flex items-center border rounded px-3 py-2">
-            <FaLock className="text-gray-500 mr-3" />
-            <input
-              type="password"
-              placeholder="Password"
-              className="w-full outline-none"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="flex items-center border rounded px-3 py-2">
-            <FaUserTag className="text-gray-500 mr-3" />
-            <select
-              className="w-full outline-none bg-transparent"
-              value={roles}
-              onChange={(e) => setRoles(e.target.value)}
-              required
-            >
-              <option value="customer">Customer</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Create your account</h2>
+        <form onSubmit={handleRegister} className="space-y-4">
+          <input
+            name="firstName"
+            type="text"
+            placeholder="First Name"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            value={form.firstName}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="lastName"
+            type="text"
+            placeholder="Last Name"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            value={form.lastName}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="email"
+            type="email"
+            placeholder="Email Address"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="password"
+            type="password"
+            placeholder="Password"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+          <select
+            name="role"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            value={form.role}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Role</option>
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
 
           <button
             type="submit"
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded transition duration-200"
+            className="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition duration-300"
           >
             Register
           </button>
-
-          <p className="text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link to="/login" className="text-emerald-600 hover:underline">
-              Login here
-            </Link>
-          </p>
         </form>
+        <p className="text-sm text-gray-600 mt-4 text-center">
+          Already have an account?{' '}
+          <Link to="/login" className="text-indigo-500 hover:underline">
+            Login
+          </Link>
+        </p>
       </div>
     </div>
   );

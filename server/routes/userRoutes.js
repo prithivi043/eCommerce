@@ -2,14 +2,12 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
+
 const router = express.Router();
 
+// Register Route
 router.post('/register', async (req, res) => {
-  const { name, email, password, roles } = req.body;
-
-  if (!name || !email || !password || !roles) {
-    return res.status(400).json({ message: 'All fields are required' });
-  }
+  const { firstName, lastName, email, password, role, createdAt } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -20,21 +18,24 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
-      name,
+      firstName,
+      lastName,
       email,
       password: hashedPassword,
-      roles
+      role,
+      createdAt,
     });
 
     await newUser.save();
     res.status(201).json({ message: 'User registered successfully' });
 
   } catch (err) {
+    console.error('Error in /register:', err.message);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
-
+// Login Route
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -44,9 +45,10 @@ router.post('/login', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(401).json({ message: 'Incorrect password' });
 
-    res.json({ message: 'Login successful', role: user.roles });
+    res.json({ message: 'Login successful', role: user.role });
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error in /login:', err.message);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
