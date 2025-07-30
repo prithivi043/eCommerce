@@ -5,14 +5,22 @@ const CustomerDashboard = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState('');
+  const [favoriteIds, setFavoriteIds] = useState([]);
   const [search, setSearch] = useState('');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [ratingFilter, setRatingFilter] = useState(0);
   const [priceRange, setPriceRange] = useState([0, 100000]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showFavorites, setShowFavorites] = useState(false);
+
   const itemsPerPage = 12;
 
-  // Fetch all products and categories
+  const toggleFavorite = (id) => {
+    setFavoriteIds((prev) =>
+      prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
+    );
+  };
+
   useEffect(() => {
     fetchProducts();
     fetchCategories();
@@ -38,7 +46,7 @@ const CustomerDashboard = () => {
 
   const handleCategoryChange = (category) => {
     setActiveCategory(category === activeCategory ? '' : category);
-    setCurrentPage(1); // reset pagination
+    setCurrentPage(1);
   };
 
   const minPrice = Math.min(...products.map(p => p.discountPrice || p.price), 0);
@@ -51,7 +59,6 @@ const CustomerDashboard = () => {
     const price = product.discountPrice || product.price;
     const priceMatch = price >= priceRange[0] && price <= priceRange[1];
     const categoryMatch = activeCategory ? product.category === activeCategory : true;
-
     return nameMatch && stockMatch && ratingMatch && priceMatch && categoryMatch;
   });
 
@@ -59,15 +66,18 @@ const CustomerDashboard = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
 
+  const viewableProducts = showFavorites
+    ? products.filter(p => favoriteIds.includes(p._id))
+    : currentProducts;
+
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
   return (
     <div className="flex flex-col lg:flex-row max-w-screen-xl mx-auto px-6 py-10 bg-slate-50 min-h-screen font-sans">
-
-      {/* Sidebar Filters */}
-      <aside className="lg:w-1/4 w-full mb-10 lg:mb-0">
+      {/* Sidebar */}
+      <aside className="lg:w-1/4 w-full mb-10 lg:mb-0 space-y-6">
         <div className="bg-white rounded-2xl shadow-xl p-6 space-y-6 sticky top-4 border border-slate-200">
           <input
             type="text"
@@ -85,7 +95,6 @@ const CustomerDashboard = () => {
             />
             Show In-Stock Only
           </label>
-
           <div>
             <h4 className="font-semibold text-slate-700 text-sm mb-1">⭐ Minimum Rating</h4>
             {[4, 3, 2].map((star) => (
@@ -103,7 +112,6 @@ const CustomerDashboard = () => {
               </label>
             ))}
           </div>
-
           <div>
             <h4 className="font-semibold text-sm mb-2 text-slate-700">💸 Price Range</h4>
             <input
@@ -122,18 +130,28 @@ const CustomerDashboard = () => {
         </div>
       </aside>
 
-      {/* Product Section */}
+      {/* Main Section */}
       <main className="lg:w-3/4 w-full px-2">
         <h2 className="text-3xl font-bold mb-6 text-center text-slate-800 tracking-tight">🛍️ Explore Products</h2>
 
-        {/* Sticky Category Filter */}
+        {/* View Favorites */}
+        <div className="flex gap-4 justify-start mb-4">
+          <button
+            onClick={() => setShowFavorites(!showFavorites)}
+            className="bg-rose-500 text-white text-sm px-4 py-2 rounded hover:bg-rose-600 transition"
+          >
+            {showFavorites ? '🔙 Back to Products' : `❤️ View Favorites (${favoriteIds.length})`}
+          </button>
+        </div>
+
+        {/* Category Filters */}
         <div className="sticky top-0 bg-slate-50 z-20 py-2 mb-4 overflow-x-auto whitespace-nowrap scrollbar-hide border-b border-slate-200">
           <div className="flex space-x-3 px-1 sm:px-2">
             <button
               onClick={() => handleCategoryChange('')}
               className={`px-4 py-2 rounded-full text-sm border transition ${activeCategory === ''
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-white text-slate-600 hover:bg-slate-100'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-white text-slate-600 hover:bg-slate-100'
                 }`}
             >
               All
@@ -143,8 +161,8 @@ const CustomerDashboard = () => {
                 key={idx}
                 onClick={() => handleCategoryChange(cat)}
                 className={`px-4 py-2 rounded-full text-sm capitalize border transition ${activeCategory === cat
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-white text-slate-600 hover:bg-slate-100'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-white text-slate-600 hover:bg-slate-100'
                   }`}
               >
                 {cat}
@@ -153,15 +171,17 @@ const CustomerDashboard = () => {
           </div>
         </div>
 
-        {/* Product Grid */}
+        {/* Product Cards */}
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {currentProducts.length === 0 ? (
-            <p className="col-span-full text-center text-slate-500">No products found.</p>
+          {viewableProducts.length === 0 ? (
+            <p className="col-span-full text-center text-slate-500">
+              {showFavorites ? 'No favorites yet.' : 'No products found.'}
+            </p>
           ) : (
-            currentProducts.map(product => (
+            viewableProducts.map(product => (
               <div
                 key={product._id}
-                className="bg-white rounded-2xl overflow-hidden shadow hover:shadow-2xl transition-all duration-300 border border-slate-200 group"
+                className="bg-white rounded-2xl overflow-hidden shadow hover:shadow-2xl transition-all duration-300 border border-slate-200 group relative"
               >
                 <img
                   src={product.image || 'https://via.placeholder.com/300'}
@@ -169,11 +189,21 @@ const CustomerDashboard = () => {
                   className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="p-4 space-y-2">
-                  <h3 className="text-lg font-semibold text-slate-800 line-clamp-1">{product.name}</h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-slate-800 line-clamp-1 text-right">{product.name}</h3>
+                    <button
+                      onClick={() => toggleFavorite(product._id)}
+                      className="text-xl"
+                    >
+                      {favoriteIds.includes(product._id) ? '❤️' : '🤍'}
+                    </button>
+                  </div>
                   <p className="text-sm text-slate-600 line-clamp-2">{product.description}</p>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-emerald-600 font-bold">₹{product.discountPrice}</span>
-                    <span className="line-through text-slate-400">₹{product.price}</span>
+                    <span className="text-emerald-600 font-bold">₹{product.discountPrice ?? product.price}</span>
+                    {product.discountPrice && (
+                      <span className="line-through text-slate-400">₹{product.price}</span>
+                    )}
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className={`font-medium ${product.stock > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
@@ -188,7 +218,7 @@ const CustomerDashboard = () => {
         </div>
 
         {/* Pagination */}
-        {filteredProducts.length > itemsPerPage && (
+        {!showFavorites && filteredProducts.length > itemsPerPage && (
           <div className="flex justify-center mt-10 space-x-2 text-sm">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
@@ -202,8 +232,8 @@ const CustomerDashboard = () => {
                 key={i}
                 onClick={() => handlePageChange(i + 1)}
                 className={`px-3 py-1 rounded ${currentPage === i + 1
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-100 hover:bg-slate-200'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-slate-100 hover:bg-slate-200'
                   }`}
               >
                 {i + 1}
