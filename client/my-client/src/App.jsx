@@ -1,4 +1,3 @@
-// App.jsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
@@ -8,6 +7,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminSettings from './pages/AdminSettings';
 import AdminCustomerManager from './pages/AdminCustomerManager';
 import CustomerDashboard from './pages/CustomerDashboard';
+import CartPage from './pages/CartPage';         // ← Imported CartPage component
 import WelcomePage from './pages/WelcomePage';
 
 const App = () => {
@@ -24,6 +24,7 @@ const App = () => {
 
       {/* Customer Routes */}
       <Route path="/customer/home" element={<CustomerDashboard />} />
+      <Route path="/customer/cart" element={<CartPage />} /> {/* 🎯 New Cart Route */}
     </Routes>
   );
 };

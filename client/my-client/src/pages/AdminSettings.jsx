@@ -2,47 +2,53 @@
 
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FiUsers, FiLogOut, FiArrowLeft } from "react-icons/fi";
 
 const AdminSettings = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("adminToken"); // Or however you're storing it
-    alert("You have been logged out.");
-    navigate("/login"); // Redirect to admin login page
+    localStorage.removeItem("adminToken");
+    navigate("/login");
   };
 
   const handleBack = () => {
-    navigate("/admin/dashboard"); // Redirect to admin dashboard
+    navigate("/admin/dashboard");
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Admin Settings</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 p-6 font-sans">
+      <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-6">
+        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+          Admin Settings
+        </h2>
 
-      <div className="bg-white shadow-md rounded-lg p-4 max-w-md">
-        <h3 className="text-lg font-semibold mb-2">Account Settings</h3>
+        <div className="space-y-4">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-semibold rounded hover:bg-red-700 transition"
+          >
+            <FiLogOut size={20} />
+            Logout
+          </button>
 
-        <button
-          onClick={handleLogout}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer transition"
-        >
-          Logout
-        </button>
-        <button
-          onClick={handleBack}
-          className="ml-3 mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 cursor-pointer transition"
-        >
-          Back
-        </button>
+          <button
+            onClick={handleBack}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white font-semibold rounded hover:bg-blue-500 transition"
+          >
+            <FiArrowLeft size={20} />
+            Back to Dashboard
+          </button>
+
+          <Link
+            to="/admin/customers"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-blue-600 text-blue-600 font-semibold rounded hover:bg-blue-100 transition"
+          >
+            <FiUsers size={20} />
+            Manage Customers
+          </Link>
+        </div>
       </div>
-      <Link
-        to="/admin/customers"
-        className="block px-4 py-2 text-blue-600 hover:underline"
-      >
-        👥 Manage Customers
-      </Link>
-
     </div>
   );
 };

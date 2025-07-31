@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // ✅ FIXED: added navigate hook
+import { useNavigate } from 'react-router-dom';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import axios from 'axios';
 
@@ -9,8 +9,11 @@ const Login = () => {
     password: '',
   });
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [userRole, setUserRole] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // ✅ FIXED: initialized hook
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,21 +24,27 @@ const Login = () => {
     setMessage('');
     try {
       const response = await axios.post('http://localhost:5000/api/users/login', formData);
-      setMessage(response.data.message || 'Login successful');
 
-      // ✅ FIXED: Proper role-based navigation
-      if (response.data.role === 'admin') {
-        navigate('/admin/dashboard');
-      } else {
-        navigate('/customer/home');
-      }
+      const role = response.data.role;
+      setUserRole(role); // Store role for greeting
+      setModalOpen(true); // Open modal for greeting
+
     } catch (error) {
       setMessage(error.response?.data?.message || 'Login failed');
     }
   };
 
+  const handleModalClose = () => {
+    setModalOpen(false);
+    if (userRole === 'admin') {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/customer/home');
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#e6f2ff] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 relative">
       {/* Left Animation */}
       <div className="hidden md:flex w-1/2 items-center justify-center">
         <DotLottieReact
@@ -47,7 +56,7 @@ const Login = () => {
       </div>
 
       {/* Right Login Form */}
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-200 z-10">
         <h2 className="text-3xl font-bold text-blue-700 mb-6 text-center">Welcome Back 👋</h2>
 
         {message && (
@@ -102,6 +111,24 @@ const Login = () => {
           </a>
         </p>
       </div>
+
+      {/* Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-gradient-to-r from-indigo-500 to-blue-600 text-white w-[90%] max-w-sm p-8 rounded-2xl shadow-lg text-center">
+            <h2 className="text-2xl font-bold mb-4">🎉 Welcome!</h2>
+            <p className="text-lg mb-6">
+              Hello <span className="capitalize font-semibold">{userRole}</span>, you’ve logged in successfully!
+            </p>
+            <button
+              onClick={handleModalClose}
+              className="bg-white text-indigo-600 font-semibold py-2 px-6 rounded-lg hover:bg-gray-100 transition"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

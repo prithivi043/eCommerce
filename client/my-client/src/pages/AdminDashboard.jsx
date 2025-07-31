@@ -175,9 +175,8 @@ const AdminDashboard = () => {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 md:ml-64 overflow-y-auto p-4 pt-16 md:pt-4">
-        <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
-
+      <main className="flex-1 md:ml-64 overflow-y-auto p-6 pt-20 md:pt-8 min-h-screen bg-gradient-to-tr from-[#f9fafb] via-[#edf2f7] to-[#e2e8f0] bg-fixed">
+        <div className="mb-8 text-center"> <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl"> <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500"> Admin Dashboard </span> <span className="block text-sm font-medium text-gray-500 mt-2"> Manage your users, settings, and analytics efficiently </span> </h1> </div>
         {formVisible && (
           <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
             {['name', 'price', 'discountPrice', 'rating', 'count', 'image', 'category'].map(field => (
@@ -247,13 +246,41 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        <div className="flex justify-center mt-6 space-x-2">
-          <button onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1} className="px-3 py-1 border rounded disabled:opacity-50">Prev</button>
+        <div className="flex justify-center mt-8 space-x-2">
+          {/* Previous Button */}
+          <button
+            onClick={() => setPage(p => Math.max(p - 1, 1))}
+            disabled={page === 1}
+            className="px-4 py-2 text-sm border border-gray-300 rounded-md shadow-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 cursor-pointer transition"
+          >
+            Prev
+          </button>
+
+          {/* Page Numbers */}
           {Array.from({ length: totalPages }).map((_, i) => (
-            <button key={i} onClick={() => setPage(i + 1)} className={`px-3 py-1 rounded ${page === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>{i + 1}</button>
+            <button
+              key={i}
+              onClick={() => setPage(i + 1)}
+              className={`px-4 py-2 text-sm rounded-md shadow-sm transition duration-200 
+        ${page === i + 1
+                  ? 'bg-blue-600 text-white font-semibold'
+                  : 'bg-white border border-gray-300 hover:bg-gray-100 cursor-pointer'
+                }`}
+            >
+              {i + 1}
+            </button>
           ))}
-          <button onClick={() => setPage(p => Math.min(p + 1, totalPages))} disabled={page === totalPages} className="px-3 py-1 border rounded disabled:opacity-50">Next</button>
+
+          {/* Next Button */}
+          <button
+            onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+            disabled={page === totalPages}
+            className="px-4 py-2 text-sm border border-gray-300 rounded-md shadow-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 cursor-pointer transition"
+          >
+            Next
+          </button>
         </div>
+
       </main>
     </div>
   );

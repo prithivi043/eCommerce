@@ -9,43 +9,43 @@ const calculateDiscount = (price, discountPrice) => {
 };
 
 // ✅ POST /api/admin/products
-router.post("/products", async (req, res) => {
+router.post('/products', async (req, res) => {
   try {
     const {
-      name,
-      description,
-      price,
-      discountPrice,
-      image,
-      rating,
-      count,
+      name, description, image, category,
+      price, discountPrice, rating, count
     } = req.body;
 
-    if (!name || !description || !price || !image) {
-      return res.status(400).json({ message: "Missing required fields" });
+    if (!name || !description || !image || !category || price == null) {
+      return res.status(400).json({ message: 'Missing required fields.' });
     }
 
-    const discount = calculateDiscount(price, discountPrice);
+    const discount = discountPrice
+      ? Math.round(((price - discountPrice) / price) * 100)
+      : 0;
 
-    const newProduct = new Product({
+    const product = new Product({
       name,
       description,
+      image,
+      category,
       price,
       discountPrice,
       discount,
-      image,
       rating,
       count,
-      stock: count > 0,
+      stock: count > 0
     });
 
-    const savedProduct = await newProduct.save();
-    res.status(201).json(savedProduct);
+    const saved = await product.save();
+    res.status(201).json({ message: 'Product created', product: saved });
   } catch (err) {
-    console.error("❌ Add product error:", err.message);
-    res.status(500).json({ message: "Server error" });
+    console.error('Error saving product:', err);
+    res.status(500).json({ message: 'Server error while saving product', error: err.message });
   }
 });
+
+
 
 // ✅ GET /api/admin/products
 router.get("/products", async (req, res) => {
