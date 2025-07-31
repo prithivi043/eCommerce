@@ -12,6 +12,7 @@ const CustomerDashboard = () => {
   const [priceRange, setPriceRange] = useState([0, 100000]);
   const [currentPage, setCurrentPage] = useState(1);
   const [showFavorites, setShowFavorites] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const itemsPerPage = 12;
 
@@ -29,7 +30,7 @@ const CustomerDashboard = () => {
   const fetchProducts = async () => {
     try {
       const res = await axios.get('http://localhost:5000/api/products');
-      setProducts(res.data);
+      setProducts(res.data.products || res.data); // Ensure array format
     } catch (err) {
       console.error('Error fetching products:', err);
     }
@@ -47,6 +48,7 @@ const CustomerDashboard = () => {
   const handleCategoryChange = (category) => {
     setActiveCategory(category === activeCategory ? '' : category);
     setCurrentPage(1);
+    setSelectedProduct(null);
   };
 
   const minPrice = Math.min(...products.map(p => p.discountPrice || p.price), 0);
@@ -68,11 +70,17 @@ const CustomerDashboard = () => {
 
   const viewableProducts = showFavorites
     ? products.filter(p => favoriteIds.includes(p._id))
-    : currentProducts;
+    : selectedProduct
+      ? []
+      : currentProducts;
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
+
+  const relatedProducts = selectedProduct
+    ? products.filter(p => p.category === selectedProduct.category && p._id !== selectedProduct._id)
+    : [];
 
   return (
     <div className="flex flex-col lg:flex-row max-w-screen-xl mx-auto px-6 py-10 bg-slate-50 min-h-screen font-sans">
@@ -130,12 +138,10 @@ const CustomerDashboard = () => {
         </div>
       </aside>
 
-      {/* Main Section */}
+      {/* Main Content */}
       <main className="lg:w-3/4 w-full px-2">
-        <h2 className="text-3xl font-bold mb-6 text-center text-slate-800 tracking-tight">🛍️ Explore Products</h2>
-
-        {/* View Favorites */}
-        <div className="flex gap-4 justify-start mb-4">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-3xl font-bold text-slate-800 tracking-tight">🛍️ Explore Products</h2>
           <button
             onClick={() => setShowFavorites(!showFavorites)}
             className="bg-rose-500 text-white text-sm px-4 py-2 rounded hover:bg-rose-600 transition"
@@ -144,7 +150,7 @@ const CustomerDashboard = () => {
           </button>
         </div>
 
-        {/* Category Filters */}
+        {/* Category Filter */}
         <div className="sticky top-0 bg-slate-50 z-20 py-2 mb-4 overflow-x-auto whitespace-nowrap scrollbar-hide border-b border-slate-200">
           <div className="flex space-x-3 px-1 sm:px-2">
             <button
@@ -171,6 +177,53 @@ const CustomerDashboard = () => {
           </div>
         </div>
 
+        {/* Selected Product View */}
+        {selectedProduct && (
+          <div className="bg-white p-6 rounded-xl shadow-md mb-10">
+            <div className="flex flex-col md:flex-row gap-6">
+              <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full md:w-1/2 h-64 object-cover rounded-xl" />
+              <div className="flex-1 space-y-2">
+                <h3 className="text-2xl font-bold text-slate-800">{selectedProduct.name}</h3>
+                <p className="text-slate-600">{selectedProduct.description}</p>
+                <p className="text-emerald-600 text-xl font-bold">₹{selectedProduct.discountPrice ?? selectedProduct.price}</p>
+                {selectedProduct.discountPrice && (
+                  <p className="text-sm text-slate-400 line-through">₹{selectedProduct.price}</p>
+                )}
+                <p className="text-sm text-slate-500">⭐ {selectedProduct.rating ?? 'N/A'}</p>
+                <p className={`text-sm ${selectedProduct.stock > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                  {selectedProduct.stock > 0 ? '🟢 In Stock' : '🔴 Out of Stock'}
+                </p>
+                <button
+                  onClick={() => setSelectedProduct(null)}
+                  className="mt-4 inline-block text-indigo-600 hover:underline"
+                >
+                  🔙 Back to products
+                </button>
+              </div>
+            </div>
+
+            {/* Related Products */}
+            {relatedProducts.length > 0 && (
+              <>
+                <h4 className="mt-10 mb-4 font-semibold text-lg text-slate-700">Related Products</h4>
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {relatedProducts.map(product => (
+                    <div
+                      key={product._id}
+                      className="bg-slate-50 p-4 border rounded-lg cursor-pointer hover:shadow"
+                      onClick={() => setSelectedProduct(product)}
+                    >
+                      <img src={product.image} alt={product.name} className="w-full h-32 object-cover rounded mb-2" />
+                      <h5 className="text-sm font-medium text-slate-800 line-clamp-1">{product.name}</h5>
+                      <p className="text-xs text-slate-500">₹{product.discountPrice ?? product.price}</p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
         {/* Product Cards */}
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
           {viewableProducts.length === 0 ? (
@@ -181,7 +234,8 @@ const CustomerDashboard = () => {
             viewableProducts.map(product => (
               <div
                 key={product._id}
-                className="bg-white rounded-2xl overflow-hidden shadow hover:shadow-2xl transition-all duration-300 border border-slate-200 group relative"
+                onClick={() => setSelectedProduct(product)}
+                className="bg-white rounded-2xl overflow-hidden shadow hover:shadow-2xl transition-all duration-300 border border-slate-200 group relative cursor-pointer"
               >
                 <img
                   src={product.image || 'https://via.placeholder.com/300'}
@@ -192,7 +246,10 @@ const CustomerDashboard = () => {
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-slate-800 line-clamp-1 text-right">{product.name}</h3>
                     <button
-                      onClick={() => toggleFavorite(product._id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(product._id);
+                      }}
                       className="text-xl"
                     >
                       {favoriteIds.includes(product._id) ? '❤️' : '🤍'}
@@ -218,7 +275,7 @@ const CustomerDashboard = () => {
         </div>
 
         {/* Pagination */}
-        {!showFavorites && filteredProducts.length > itemsPerPage && (
+        {!showFavorites && !selectedProduct && filteredProducts.length > itemsPerPage && (
           <div className="flex justify-center mt-10 space-x-2 text-sm">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
