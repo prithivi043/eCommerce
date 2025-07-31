@@ -13,6 +13,7 @@ const CustomerDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showFavorites, setShowFavorites] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [cartItems, setCartItems] = useState([]); // ✅ Added cart state
 
   const itemsPerPage = 12;
 
@@ -20,6 +21,17 @@ const CustomerDashboard = () => {
     setFavoriteIds((prev) =>
       prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
     );
+  };
+
+  const addToCart = (product) => {
+    const exists = cartItems.find(item => item._id === product._id);
+    if (!exists) {
+      setCartItems([...cartItems, { ...product, quantity: 1 }]);
+    } else {
+      setCartItems(cartItems.map(item =>
+        item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
+      ));
+    }
   };
 
   useEffect(() => {
@@ -30,7 +42,7 @@ const CustomerDashboard = () => {
   const fetchProducts = async () => {
     try {
       const res = await axios.get('http://localhost:5000/api/products');
-      setProducts(res.data.products || res.data); // Ensure array format
+      setProducts(res.data.products || res.data);
     } catch (err) {
       console.error('Error fetching products:', err);
     }
@@ -142,12 +154,17 @@ const CustomerDashboard = () => {
       <main className="lg:w-3/4 w-full px-2">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold text-slate-800 tracking-tight">🛍️ Explore Products</h2>
-          <button
-            onClick={() => setShowFavorites(!showFavorites)}
-            className="bg-rose-500 text-white text-sm px-4 py-2 rounded hover:bg-rose-600 transition"
-          >
-            {showFavorites ? '🔙 Back to Products' : `❤️ View Favorites (${favoriteIds.length})`}
-          </button>
+          <div className="flex gap-3 items-center">
+            <button
+              onClick={() => setShowFavorites(!showFavorites)}
+              className="bg-rose-500 text-white text-sm px-4 py-2 rounded hover:bg-rose-600 transition"
+            >
+              {showFavorites ? '🔙 Back to Products' : `❤️ Favorites (${favoriteIds.length})`}
+            </button>
+            <div className="text-sm text-slate-600">
+              🛒 Cart: {cartItems.length}
+            </div>
+          </div>
         </div>
 
         {/* Category Filter */}
@@ -193,9 +210,20 @@ const CustomerDashboard = () => {
                 <p className={`text-sm ${selectedProduct.stock > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                   {selectedProduct.stock > 0 ? '🟢 In Stock' : '🔴 Out of Stock'}
                 </p>
+
+                {/* ✅ Add to Cart Button */}
+                {selectedProduct.stock > 0 && (
+                  <button
+                    onClick={() => addToCart(selectedProduct)}
+                    className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition"
+                  >
+                    🛒 Add to Cart
+                  </button>
+                )}
+
                 <button
                   onClick={() => setSelectedProduct(null)}
-                  className="mt-4 inline-block text-indigo-600 hover:underline"
+                  className="mt-4 inline-block text-indigo-600 hover:underline ml-4"
                 >
                   🔙 Back to products
                 </button>
