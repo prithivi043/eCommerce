@@ -8,9 +8,9 @@ import { BiRupee } from 'react-icons/bi';
 import { MdOutlineInventory } from 'react-icons/md';
 import { MdTrackChanges } from "react-icons/md";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
-
-
+import { FaCartPlus, FaCreditCard } from "react-icons/fa";
 import { FaShoppingBag, FaHeart, FaArrowLeft, FaShoppingCart } from 'react-icons/fa';
+import { FiGrid } from 'react-icons/fi'; // Minimal, clean grid icon
 
 
 const CustomerDashboard = () => {
@@ -27,10 +27,16 @@ const CustomerDashboard = () => {
   const [showFavorites, setShowFavorites] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cartItems, setCartItems] = useState([]); // ✅ Added cart state
+  const [showPayment, setShowPayment] = useState(false);
+  const [productToBuy, setProductToBuy] = useState(null);
 
   const itemsPerPage = 12;
 
 
+  const buyProduct = (product) => {
+    localStorage.setItem("productToBuy", JSON.stringify(product));
+    navigate("/customer/payment");
+  };
 
   const toggleFavorite = (id) => {
     setFavoriteIds((prev) =>
@@ -39,15 +45,33 @@ const CustomerDashboard = () => {
   };
 
   const addToCart = (product) => {
-    const exists = cartItems.find(item => item._id === product._id);
+    // Get cart from localStorage or fallback to current state
+    const storedCart = JSON.parse(localStorage.getItem('cartItems')) || cartItems;
+
+    const exists = storedCart.find(item => item._id === product._id);
+
+    let updatedCart;
+
     if (!exists) {
-      setCartItems([...cartItems, { ...product, quantity: 1 }]);
+      updatedCart = [...storedCart, { ...product, quantity: 1 }];
+      alert(`✅ "${product.name}" added to cart!`);
     } else {
-      setCartItems(cartItems.map(item =>
+      updatedCart = storedCart.map(item =>
         item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
-      ));
+      );
+      alert(`🔁 Quantity of "${product.name}" increased!`);
     }
+
+    // Update state and localStorage
+    setCartItems(updatedCart);
+    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
   };
+
+  useEffect(() => {
+    const storedCart = JSON.parse(localStorage.getItem('cartItems')) || [];
+    setCartItems(storedCart);
+  }, []);
+
 
   useEffect(() => {
     fetchProducts();
@@ -309,12 +333,24 @@ const CustomerDashboard = () => {
 
                 {/* Add to Cart Button */}
                 {selectedProduct.stock > 0 && (
-                  <button
-                    onClick={() => addToCart(selectedProduct)}
-                    className="mt-6 bg-indigo-600 hover:bg-indigo-700 transition-all duration-300 text-white px-6 py-3 rounded-full shadow-md hover:scale-105"
-                  >
-                    🛒 Add to Cart
-                  </button>
+                  <div className="flex gap-6 mt-6">
+                    <button
+                      onClick={() => addToCart(selectedProduct)}
+                      className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-2.5 rounded-full shadow-lg hover:scale-105 transition-all duration-300"
+                    >
+                      <FaCartPlus size={18} />
+                      Add to Cart
+                    </button>
+
+                    <button
+                      onClick={() => buyProduct(selectedProduct)}
+                      className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-2.5 rounded-full shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"
+                    >
+                      <FaCreditCard size={18} />
+                      Buy Now
+                    </button>
+                  </div>
+
                 )}
 
                 {/* Back Button */}
@@ -332,9 +368,14 @@ const CustomerDashboard = () => {
             {/* Related Products */}
             {relatedProducts.length > 0 && (
               <>
-                <h4 className="mt-12 mb-5 text-2xl font-semibold text-slate-800 border-b border-slate-200 pb-2">
-                  Related Products
+                <h4 className="mt-14 mb-8 text-[1.8rem] font-bold text-slate-800 tracking-tight relative inline-flex items-center">
+                  <FiGrid className="text-indigo-600 text-3xl mr-3 drop-shadow-sm" />
+                  <span className="border-b-4 border-indigo-500 pb-1">
+                    Related Products
+                  </span>
                 </h4>
+
+
                 <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {relatedProducts.map(product => (
                     <div

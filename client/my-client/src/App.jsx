@@ -9,6 +9,10 @@ import AdminCustomerManager from './pages/AdminCustomerManager';
 import CustomerDashboard from './pages/CustomerDashboard';
 import CartPage from './pages/CartPage';         // ← Imported CartPage component
 import WelcomePage from './pages/WelcomePage';
+import OrderManagement from './pages/OrderManagement'; // add import
+import Payment from "./pages/Payment"; // adjust path if needed
+
+
 
 const App = () => {
   return (
@@ -21,10 +25,14 @@ const App = () => {
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/settings" element={<AdminSettings />} />
       <Route path="/admin/customers" element={<AdminCustomerManager />} />
+      <Route path="/admin/orders" element={<OrderManagement />} />
+
 
       {/* Customer Routes */}
       <Route path="/customer/home" element={<CustomerDashboard />} />
       <Route path="/customer/cart" element={<CartPage />} /> {/* 🎯 New Cart Route */}
+      <Route path="/customer/payment" element={<Payment />} />
+
     </Routes>
   );
 };

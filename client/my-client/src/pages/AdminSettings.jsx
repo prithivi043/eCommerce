@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiUsers, FiLogOut, FiArrowLeft } from "react-icons/fi";
+import { FiUsers, FiLogOut, FiArrowLeft, FiShoppingBag } from "react-icons/fi"; // ✅ Importing order icon
 
 const AdminSettings = () => {
   const navigate = useNavigate();
@@ -46,6 +46,15 @@ const AdminSettings = () => {
           >
             <FiUsers size={20} />
             Manage Customers
+          </Link>
+
+          {/* ✅ New Button for Order Management */}
+          <Link
+            to="/admin/orders"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-green-600 text-green-600 font-semibold rounded hover:bg-green-100 transition"
+          >
+            <FiShoppingBag size={20} />
+            Manage Orders
           </Link>
         </div>
       </div>

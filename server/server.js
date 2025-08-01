@@ -6,6 +6,9 @@ const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const adminRoutes = require("./routes/admin");
+const orderRoutes = require('./routes/orderRoutes');
+
+
 
 dotenv.config();
 connectDB();
@@ -20,6 +23,8 @@ app.use(express.json());
 app.use('/api/users', userRoutes); // import register and login routes
 app.use('/api/products', productRoutes);  //import customer product routes
 app.use("/api/admin", adminRoutes); // import admin product routes
+app.use('/api/orders', orderRoutes); // import the amind order routes
+
 
 
 const PORT = process.env.PORT || 5000;
