@@ -20,6 +20,7 @@ const CartPage = () => {
     localStorage.setItem('cartItems', JSON.stringify(updated));
   };
 
+
   const handleQuantityChange = (productId, newQuantity) => {
     if (newQuantity < 1 || isNaN(newQuantity)) return;
     const updatedCart = cartItems.map(item =>

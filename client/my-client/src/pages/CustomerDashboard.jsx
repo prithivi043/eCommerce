@@ -27,11 +27,24 @@ const CustomerDashboard = () => {
   const [showFavorites, setShowFavorites] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cartItems, setCartItems] = useState([]); // ✅ Added cart state
-  const [showPayment, setShowPayment] = useState(false);
-  const [productToBuy, setProductToBuy] = useState(null);
+  const [user, setUser] = useState(null);
+
 
   const itemsPerPage = 12;
 
+  useEffect(() => {
+    // Fetch from localStorage or default
+    const stored = JSON.parse(localStorage.getItem('customerProfile')) || {
+      name: 'Customer',
+      email: 'email@example.com',
+    };
+    setUser(stored);
+  }, []);
+
+  // Avatar URL based on name
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+    user?.name || 'Customer'
+  )}&background=random&length=1&rounded=true`;
 
   const buyProduct = (product) => {
     localStorage.setItem("productToBuy", JSON.stringify(product));
@@ -221,6 +234,33 @@ const CustomerDashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 bg-white/90 backdrop-blur-lg shadow-2xl border border-slate-200 rounded-2xl p-6 transition-all duration-300">
+        <div className="flex items-center justify-between rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.08)] px-6 py-5 mb-6 border border-gray-100">
+          {/* Left: Avatar + Info */}
+          <div className="flex items-center space-x-5">
+            <div className="bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-[2.5px] rounded-full shadow-md">
+              <img
+                src={avatarUrl}
+                alt="Profile"
+                className="w-12 h-12 object-cover rounded-full border-2 border-white"
+              />
+            </div>
+            <div className="flex flex-col">
+              <p className="text-lg font-semibold text-gray-800 tracking-tight">{user?.name || 'Customer'}</p>
+              <p className="text-sm text-gray-500">{user?.email || 'email@example.com'}</p>
+            </div>
+          </div>
+
+          {/* Right: Button */}
+          <button
+            onClick={() => navigate('/customer/profile')}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full shadow hover:shadow-lg transition-all duration-200"
+          >
+            <span className="text-base">⚙️</span> Profile Settings
+          </button>
+        </div>
+
+
+
         <div className="flex justify-between items-center mb-6 bg-gradient-to-r from-[#f5f7fb] to-[#eaf0f9] px-5 py-4 rounded-lg shadow-sm">
           {/* Header Gradient Text */}
           <h2 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm flex items-center gap-3">

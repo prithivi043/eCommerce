@@ -4,15 +4,10 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import axios from 'axios';
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [modalOpen, setModalOpen] = useState(false);
   const [userRole, setUserRole] = useState('');
   const [message, setMessage] = useState('');
-
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -24,11 +19,9 @@ const Login = () => {
     setMessage('');
     try {
       const response = await axios.post('http://localhost:5000/api/users/login', formData);
-
       const role = response.data.role;
-      setUserRole(role); // Store role for greeting
-      setModalOpen(true); // Open modal for greeting
-
+      setUserRole(role);
+      setModalOpen(true);
     } catch (error) {
       setMessage(error.response?.data?.message || 'Login failed');
     }
@@ -36,15 +29,12 @@ const Login = () => {
 
   const handleModalClose = () => {
     setModalOpen(false);
-    if (userRole === 'admin') {
-      navigate('/admin/dashboard');
-    } else {
-      navigate('/customer/home');
-    }
+    navigate(userRole === 'admin' ? '/admin/dashboard' : '/customer/home');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 relative">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 relative overflow-hidden">
+
       {/* Left Animation */}
       <div className="hidden md:flex w-1/2 items-center justify-center">
         <DotLottieReact
@@ -55,19 +45,15 @@ const Login = () => {
         />
       </div>
 
-      {/* Right Login Form */}
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-200 z-10">
+      {/* Login Form */}
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-200 z-10 relative">
         <h2 className="text-3xl font-bold text-blue-700 mb-6 text-center">Welcome Back 👋</h2>
 
-        {message && (
-          <div className="mb-4 text-center text-sm text-red-600">{message}</div>
-        )}
+        {message && <div className="mb-4 text-center text-sm text-red-600">{message}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="email" className="block text-gray-700 font-medium mb-1">
-              Email
-            </label>
+            <label htmlFor="email" className="block text-gray-700 font-medium mb-1">Email</label>
             <input
               type="email"
               id="email"
@@ -81,9 +67,7 @@ const Login = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-gray-700 font-medium mb-1">
-              Password
-            </label>
+            <label htmlFor="password" className="block text-gray-700 font-medium mb-1">Password</label>
             <input
               type="password"
               id="password"
@@ -110,9 +94,19 @@ const Login = () => {
             Register here
           </a>
         </p>
+
+        {/* Person Running With Cart Animation */}
+        <div className="absolute bottom-[-70px] left-[-120px] animate-slideXSlow">
+          <DotLottieReact
+            src="https://lottie.host/0576ab60-3c76-448a-bf2f-45959cbfe152/bvVFRKXlaI.lottie"
+            autoplay
+            loop
+            style={{ height: '150px' }}
+          />
+        </div>
       </div>
 
-      {/* Modal */}
+      {/* Welcome Modal */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-gradient-to-r from-indigo-500 to-blue-600 text-white w-[90%] max-w-sm p-8 rounded-2xl shadow-lg text-center">
@@ -129,6 +123,9 @@ const Login = () => {
           </div>
         </div>
       )}
+
+      {/* Cursor Trail Effect (Optional enhancement idea) */}
+      {/* Add in the future using Framer Motion or custom CSS */}
     </div>
   );
 };

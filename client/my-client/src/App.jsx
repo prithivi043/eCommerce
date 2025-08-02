@@ -11,6 +11,7 @@ import CartPage from './pages/CartPage';         // ← Imported CartPage compon
 import WelcomePage from './pages/WelcomePage';
 import OrderManagement from './pages/OrderManagement'; // add import
 import Payment from "./pages/Payment"; // adjust path if needed
+import CustomerProfile from "./pages/CustomerProfile";
 
 
 
@@ -31,6 +32,8 @@ const App = () => {
       {/* Customer Routes */}
       <Route path="/customer/home" element={<CustomerDashboard />} />
       <Route path="/customer/cart" element={<CartPage />} /> {/* 🎯 New Cart Route */}
+      <Route path="/customer/profile" element={<CustomerProfile />} />
+
       <Route path="/customer/payment" element={<Payment />} />
 
     </Routes>
