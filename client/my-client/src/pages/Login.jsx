@@ -124,8 +124,7 @@ const Login = () => {
         </div>
       )}
 
-      {/* Cursor Trail Effect (Optional enhancement idea) */}
-      {/* Add in the future using Framer Motion or custom CSS */}
+
     </div>
   );
 };

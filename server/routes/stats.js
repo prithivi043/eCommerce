@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Product = require('../models/Product');
-const Order = require('../models/Order'); // ✅ Import Order
 
 // Total customers
 router.get('/customers', async (req, res) => {
@@ -24,8 +23,5 @@ router.get('/products', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch product count' });
   }
 });
-
-// ✅ Total orders
-
 
 module.exports = router;

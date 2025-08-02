@@ -6,6 +6,7 @@ const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const adminRoutes = require("./routes/admin");
+const statsRoutes = require('./routes/stats');
 
 
 
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use('/api/users', userRoutes); // import register and login routes
 app.use('/api/products', productRoutes);  //import customer product routes
 app.use("/api/admin", adminRoutes); // import admin product routes
+app.use('/api/stats', statsRoutes);
 
 
 

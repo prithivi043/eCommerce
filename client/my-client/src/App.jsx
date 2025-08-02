@@ -7,10 +7,10 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminSettings from './pages/AdminSettings';
 import AdminCustomerManager from './pages/AdminCustomerManager';
 import CustomerDashboard from './pages/CustomerDashboard';
-import CartPage from './pages/CartPage';         // ← Imported CartPage component
+import CartPage from './pages/CartPage';
 import WelcomePage from './pages/WelcomePage';
 import OrderManagement from './pages/OrderManagement'; // add import
-import Payment from "./pages/Payment"; // adjust path if needed
+import Payment from "./pages/Payment";
 import CustomerProfile from "./pages/CustomerProfile";
 
 
